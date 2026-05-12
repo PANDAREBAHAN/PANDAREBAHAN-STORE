@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="su">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | PandaRebahan</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.min.css" rel="stylesheet">
+
+  <style>
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: var(--bg); overflow: hidden; }
+    .auth-container { width: 100%; max-width: 400px; padding: 40px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.1); text-align: center; }
+    .auth-container h2 { color: var(--primary); margin-bottom: 10px; font-size: 28px; }
+    .auth-container p { opacity: 0.7; margin-bottom: 30px; font-size: 14px; }
+    .input-group { margin-bottom: 20px; text-align: left; }
+    .input-group label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 14px; }
+    .input-group input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; }
+    .btn-auth { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+    .btn-auth:hover { opacity: 0.8; transform: translateY(-2px); }
+    .auth-link { margin-top: 25px; font-size: 14px; }
+    .auth-link a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    
+    .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 20px !important; }
+  </style>
+</head>
+<body>
+
+  <div class="auth-container">
+    <h2>Wilujeng Sumping</h2>
+    <p>Login heula mang, ameh bisa jajan!</p>
+
+    <form id="loginForm">
+      <div class="input-group">
+        <label>Alamat Email</label>
+        <input type="email" id="email" required>
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="password" required>
+      </div>
+      
+      <div style="text-align: right; margin-top: -10px; margin-bottom: 20px;">
+          <a href="#" id="lupaSandiBtn" style="color: var(--primary); font-size: 13px; font-weight: 600; text-decoration: none;">Lupa Password, A? 🐼</a>
+      </div>
+
+      <button type="submit" class="btn-auth" id="loginBtn">Login</button>
+    </form>
+
+    <div class="auth-link">Can boga akun? <a href="register.html">Daftar heula atuh</a></div>
+    <a href="../index.html" style="display:block; margin-top:20px; font-size:13px; opacity:0.6; color:var(--text); text-decoration:none;">← Balik ka Home</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const app = initializeApp({
+      apiKey: "AIzaSyAeYwblUK5lo3l14fjo7LJ9dyyEmxT4TaI",
+      authDomain: "pandarebahan132703.firebaseapp.com",
+      projectId: "pandarebahan132703",
+      storageBucket: "pandarebahan132703.firebasestorage.app",
+      messagingSenderId: "119871759918",
+      appId: "1:119871759918:web:011d6094b297705b7ea1bf"
+    });
+    const auth = getAuth(app);
+
+    const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
+
+    // === FITUR LOGIN & SATPAM ===
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const pass = document.getElementById("password").value;
+      const btn = document.getElementById("loginBtn");
+
+      btn.innerHTML = "Sakedap..."; btn.disabled = true;
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+        const user = userCredential.user;
+
+        // POPUP SATPAM KALO BELUM VERIFIKASI
+        if (!user.emailVerified) {
+          Swal.fire({
+            title: 'Eits, Dilarang Masuk! 🛑',
+            text: 'Email Aa belum diverifikasi nih. Intip kotak masuk emailnya dulu terus klik linknya ya!',
+            icon: 'warning',
+            confirmButtonText: 'Oke, Saya Cek Email',
+            confirmButtonColor: '#e74c3c'
+          });
+          
+          await signOut(auth);
+          btn.innerHTML = "Login"; btn.disabled = false;
+          return;
+        }
+
+        // === PINTU RAHASIA ADMIN ===
+        if (user.email === "rebahanpanda@gmail.com") {
+            // Kalau Bos Panda yang login, arahin ke Markas
+            Toast.fire({ icon: 'success', title: 'Halo Bos Panda! Meluncur ke Dashboard...' });
+            setTimeout(() => window.location.href = "admin.html", 1500);
+        } else {
+            // Kalau pembeli biasa, arahin ke Beranda (Home)
+            Toast.fire({ icon: 'success', title: 'Wilujeng sumping di PandaRebahan! 🐼' });
+            setTimeout(() => window.location.href = "../index.html", 1500);
+        }
+
+      } catch (error) {
+        Toast.fire({ icon: 'error', title: 'Email atau password salah, A!' });
+        btn.innerHTML = "Login"; btn.disabled = false;
+      }
+    });
+
+    // === FITUR LUPA SANDI DENGAN SWEETALERT ===
+    document.getElementById("lupaSandiBtn").addEventListener("click", async () => {
+        let inputEmail = document.getElementById("email").value;
+
+        const { value: emailLupa } = await Swal.fire({
+            title: 'Lupa Password?',
+            input: 'email',
+            inputLabel: 'Masukin email akun PandaRebahan Aa di bawah ini',
+            inputValue: inputEmail,
+            inputPlaceholder: 'contoh@gmail.com',
+            showCancelButton: true,
+            confirmButtonText: 'Kirim Link Reset',
+            confirmButtonColor: '#00b894',
+            cancelButtonText: 'Batal'
+        });
+
+        if (emailLupa) {
+            Swal.showLoading();
+            sendPasswordResetEmail(auth, emailLupa)
+            .then(() => {
+                Swal.fire({
+                    title: 'Terkirim! 🚀',
+                    text: `Link buat ganti password udah meluncur ke ${emailLupa}. Cek inbox ya!`,
+                    icon: 'success',
+                    confirmButtonColor: '#00b894'
+                });
+            })
+            .catch((error) => {
+                Swal.fire('Waduh Gagal', 'Pastikan emailnya bener dan udah kedaftar ya A!', 'error');
+            });
+        }
+    });
+  </script>
+</body>
+</html>

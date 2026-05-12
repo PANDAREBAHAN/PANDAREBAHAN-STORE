@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="su">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Produk | PandaRebahan</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .product-detail-section {
+      padding: 150px 8% 100px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 50px;
+      align-items: flex-start;
+    }
+    .product-image-large {
+      flex: 1;
+      min-width: 300px;
+    }
+    .product-image-large img {
+      width: 100%;
+      border-radius: 30px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .product-info-details {
+      flex: 1;
+      min-width: 300px;
+    }
+    .product-info-details h1 {
+      font-size: 48px;
+      margin-bottom: 10px;
+      color: var(--primary);
+    }
+    .price-tag {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 30px;
+      display: block;
+    }
+    .product-desc {
+      line-height: 1.8;
+      opacity: 0.8;
+      margin-bottom: 40px;
+    }
+    .action-group {
+      display: flex;
+      gap: 20px;
+    }
+    .btn-buy {
+      flex: 1;
+      padding: 18px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+    .btn-cart-outline {
+      flex: 1;
+      padding: 18px;
+      background: transparent;
+      color: var(--text);
+      border: 2px solid var(--primary);
+      border-radius: 15px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    @media(max-width: 768px) {
+      .product-detail-section { padding-top: 100px; }
+      .product-info-details h1 { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="../assets/images/logo.jpg" alt="Logo" style="height: 50px; width: auto;">
+    </div>
+    <nav>
+      <a href="../index.html">Home</a>
+      <a href="explore.html">Explore</a>
+      <a href="cart.html">Keranjang</a>
+    </nav>
+    <button id="themeToggle">Mode</button>
+  </header>
+
+  <section class="product-detail-section" id="productDetail">
+    <div class="product-image-large">
+      <img id="mainImg" src="" alt="">
+    </div>
+    <div class="product-info-details">
+      <h1 id="pName">Nama Produk</h1>
+      <span class="price-tag" id="pPrice">Rp0</span>
+      
+      <div class="product-desc">
+        <h3>Deskripsi Produk</h3>
+        <p>PandaRebahan Streetwear - Kualitas premium nu nyaman dipake rebahan atawa nongkrong. Bahan adem, desain aesthetic, mangrupa pilihan terbaik keur gaya sapopoé.</p>
+        <ul style="margin-top: 20px; padding-left: 20px;">
+          <li>Bahan: Cotton Combed 24s / Fleece Premium</li>
+          <li>Sablon: Plastisol High Quality</li>
+          <li>Oversized Fit</li>
+        </ul>
+      </div>
+
+      <div class="action-group">
+        <button class="btn-cart-outline" onclick="triggerAddToCart()">+ Keranjang</button>
+        <button class="btn-buy" onclick="triggerBuyNow()">Mésér Ayeuna</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.onclick = () => document.body.classList.toggle("light");
+
+    // AMBIL DATA DARI LOCAL STORAGE (Hasil klik dari explore.html)
+    const productData = JSON.parse(localStorage.getItem("selectedProduct"));
+
+    if (productData) {
+      document.getElementById("pName").innerText = productData.name;
+      document.getElementById("pPrice").innerText = productData.price;
+      document.getElementById("mainImg").src = productData.image;
+    } else {
+      window.location.href = "explore.html";
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeYwblUK5lo3l14fjo7LJ9dyyEmxT4TaI",
+      authDomain: "pandarebahan132703.firebaseapp.com",
+      projectId: "pandarebahan132703",
+      storageBucket: "pandarebahan132703.firebasestorage.app",
+      messagingSenderId: "119871759918",
+      appId: "1:119871759918:web:011d6094b297705b7ea1bf",
+      measurementId: "G-X2J420R961"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    onAuthStateChanged(auth, (user) => { currentUser = user; });
+
+    // FUNGSI TAMBAH KE KERANJANG
+    window.triggerAddToCart = async function() {
+      if (!currentUser) {
+        alert("Login heula mang!");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const cartRef = doc(db, "carts", currentUser.uid);
+      const cartSnap = await getDoc(cartRef);
+      let cart = cartSnap.exists() ? cartSnap.data().items || [] : [];
+
+      const existing = cart.find(item => item.name === productData.name);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push({ ...productData, quantity: 1 });
+      }
+
+      await setDoc(cartRef, { items: cart });
+      alert("Produk mantap masuk keranjang!");
+    };
+
+    // FUNGSI BELI SEKARANG (LANGSUNG CHECKOUT)
+    window.triggerBuyNow = async function() {
+      if (!currentUser) {
+        alert("Login heula mang!");
+        window.location.href = "login.html";
+        return;
+      }
+
+      // Masukin ke format checkout
+      const checkoutItem = [{ ...productData, quantity: 1, selected: true }];
+      localStorage.setItem("checkoutItems", JSON.stringify(checkoutItem));
+      window.location.href = "checkout.html";
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="su">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PandaRebahan | Streetwear Sunda</title>
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <style>
+    /* Tambahan efek hover mewah buat card */
+    .card {
+      transition: all 0.4s ease;
+      border: 1px solid transparent;
+    }
+    .card:hover {
+      transform: translateY(-15px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      border-color: var(--primary);
+    }
+    .hero-image img {
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+      100% { transform: translateY(0px); }
+    }
+    .btn-detail {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn-detail:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+
+  <header data-aos="fade-down" data-aos-duration="1000">
+    <div class="logo">
+      <img src="assets/images/logo.jpg" alt="Logo PandaRebahan" style="height: 60px; width: auto; object-fit: contain;">
+    </div>
+    <nav id="navbarMenu">
+      <a href="#">Home</a>
+      <a href="#about">About</a>
+      <a href="pages/explore.html">Explore</a>
+      <a href="#contact">Kontak</a>
+      <a href="pages/login.html">Login</a>
+    </nav>
+    <button id="themeToggle">Mode</button>
+  </header>
+
+  <section class="hero">
+    <div class="hero-text" data-aos="fade-right" data-aos-duration="1200">
+      <p class="mini-text">Comfort Streetwear Sunda</p>
+      <h1>
+        Rebahan Heula, <br>
+        <span>Style Tetep Juara.</span>
+      </h1>
+      <p class="desc">
+        PandaRebahan mangrupakeun brand clothing modern keur barudak santai nu resep style aesthetic jeung nyaman dipake sapopoé.
+      </p>
+      <div class="hero-button">
+        <a href="pages/explore.html" class="btn">Explore Collection</a>
+      </div>
+    </div>
+
+    <div class="hero-image" data-aos="fade-left" data-aos-duration="1400" data-aos-delay="200">
+      <img src="assets/images/banner.jpg" alt="Banner PandaRebahan" style="border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
+    </div>
+  </section>
+
+  <section class="products" id="products">
+    <div class="title" data-aos="fade-up">Best Seller🔥</div>
+    <div class="product-grid" id="bestSellerGrid">
+      <p style="text-align: center; width: 100%;">Keur nyandak data produk...</p>
+    </div>
+    <div style="text-align: center; margin-top: 40px;" data-aos="fade-up">
+      <a href="pages/explore.html" class="btn-secondary" style="display: inline-block; padding: 15px 40px; border-radius: 30px;">Tingali Sadayana</a>
+    </div>
+  </section>
+
+  <section class="about" id="about">
+    <div class="title" data-aos="fade-up">Tentang PandaRebahan</div>
+    <p data-aos="fade-up" data-aos-delay="200" style="font-size: 18px;">
+      PandaRebahan lahir tina gaya hirup barudak ayeuna nu resep rebahan, ngopi peuting, ngadengekeun musik, tapi tetep hayang boga style keren jeung modern. Kualitas bahan nomor hiji, kanyamanan anu utami.
+    </p>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="title" data-aos="fade-up">Kontak Kami</div>
+    <p data-aos="fade-up" data-aos-delay="100">Instagram : @pandarebahan</p>
+    <p data-aos="fade-up" data-aos-delay="200">WhatsApp : 081234567890</p>
+  </section>
+
+  <footer>
+    © 2026 PandaRebahan. Sadayana Hak Dilindungi.
+  </footer>
+
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      once: true, // Animasi cuma jalan sekali pas di-scroll ke bawah
+      offset: 100
+    });
+
+    // SCRIPT TEMA DARK/LIGHT
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.onclick = () => document.body.classList.toggle("light");
+
+    // FUNGSI LEMPAR KE DETAIL PRODUK
+    window.goProduct = function(name, price, image) {
+      const product = { name, price, image };
+      localStorage.setItem("selectedProduct", JSON.stringify(product));
+      window.location.href = "pages/product.html";
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    // Tambah fungsi query dan limit buat narik 3 data aja
+    import { getFirestore, collection, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeYwblUK5lo3l14fjo7LJ9dyyEmxT4TaI",
+      authDomain: "pandarebahan132703.firebaseapp.com",
+      projectId: "pandarebahan132703",
+      storageBucket: "pandarebahan132703.firebasestorage.app",
+      messagingSenderId: "119871759918",
+      appId: "1:119871759918:web:011d6094b297705b7ea1bf",
+      measurementId: "G-X2J420R961"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const navbar = document.getElementById("navbarMenu");
+
+    // 1. ATUR NAVBAR OTOMATIS
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navbar.innerHTML = `
+          <a href="#">Home</a>
+          <a href="#about">About</a>
+          <a href="pages/explore.html">Explore</a>
+          <a href="pages/cart.html">Keranjang</a>
+          <a href="pages/pesanan.html">Pesanan Saya</a>
+          <a href="#" style="color: var(--primary); font-weight: bold;">${user.email.split('@')[0]}</a>
+          <a href="#" id="logoutBtn" style="color: #e74c3c;">Logout</a>
+        `;
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+          signOut(auth).then(() => {
+            alert("Logout berhasil!");
+            window.location.reload();
+          });
+        });
+      } else {
+        navbar.innerHTML = `
+          <a href="#">Home</a>
+          <a href="#about">About</a>
+          <a href="pages/explore.html">Explore</a>
+          <a href="#contact">Kontak</a>
+          <a href="pages/login.html">Login</a>
+          <a href="pages/register.html">Register</a>
+        `;
+      }
+    });
+
+    // 2. TARIK DATA BEST SELLER DARI DATABASE
+    async function loadBestSeller() {
+      const grid = document.getElementById("bestSellerGrid");
+      try {
+        // Ambil data dari koleksi produk, batasi 3 item aja biar home page rapi
+        const q = query(collection(db, "products"), limit(3));
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+          grid.innerHTML = "<p style='text-align:center; width:100%;'>Belum ada produk untuk ditampilkan.</p>";
+          return;
+        }
+
+        let html = "";
+        let delay = 100;
+
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          // Karena ini index.html yang ada di luar, path gambar mungkin perlu disesuaikan kalau disimpen di assets/
+          // Asumsi path gambar di database formatnya "../assets/images/..." atau "assets/images/..."
+          let imagePath = data.image;
+          if (imagePath.startsWith("../")) {
+            imagePath = imagePath.substring(3); // Buang "../" biar gambarnya kebaca dari root index
+          }
+
+          html += `
+            <div class="card" data-aos="fade-up" data-aos-delay="${delay}">
+              <img src="${imagePath}" alt="${data.name}" style="height: 300px; object-fit: cover;">
+              <div class="card-body">
+                <h3>${data.name}</h3>
+                <span style="color: var(--primary); font-weight: 700; font-size: 18px;">${data.price}</span>
+                <button class="btn-detail" onclick="goProduct('${data.name}', '${data.price}', '${imagePath}')">Lihat Detail</button>
+              </div>
+            </div>
+          `;
+          delay += 150; // Bikin efek animasinya bergiliran
+        });
+
+        grid.innerHTML = html;
+      } catch (error) {
+        console.error("Error ngambil best seller: ", error);
+        grid.innerHTML = "<p style='text-align:center;'>Gagal nyandak data produk.</p>";
+      }
+    }
+
+    // Panggil fungsi load best seller
+    loadBestSeller();
+
+  </script>
+</body>
+</html>

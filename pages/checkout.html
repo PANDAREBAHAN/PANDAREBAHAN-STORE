@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="su">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | PandaRebahan</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.min.css" rel="stylesheet">
+  
+  <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-FCtODPFpS64NOZtP"></script>
+
+  <style>
+    /* THEME DARK MODE KONSISTEN */
+    :root { --bg-color: #fdfdfd; --text-main: #1a1a1a; --primary: #00b894; --nav-bg: rgba(253, 253, 253, 0.85); --border: #eaeaea; --card: #ffffff; }
+    body.dark { --bg-color: #121212; --text-main: #f5f5f5; --primary: #00cec9; --nav-bg: rgba(18, 18, 18, 0.85); --border: #2a2a2a; --card: #1a1a1a; }
+    
+    body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Poppins', sans-serif; transition: 0.4s ease; margin: 0; }
+
+    header { background: var(--nav-bg); backdrop-filter: blur(12px); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; padding: 18px 8%; border-bottom: 1px solid var(--border); transition: 0.4s ease; }
+    .logo { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .logo span { color: var(--primary); }
+    nav { display: flex; gap: 30px; align-items: center; }
+    nav a { text-decoration: none; color: var(--text-main); font-weight: 500; font-size: 15px; transition: 0.3s; }
+    nav a:hover { color: var(--primary); }
+    #themeToggle { background: transparent; border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 14px; transition: 0.3s; }
+    #themeToggle:hover { border-color: var(--primary); color: var(--primary); }
+
+    .checkout-section { padding: 120px 8% 100px; display: flex; flex-wrap: wrap; gap: 40px; }
+    .checkout-left, .checkout-right { flex: 1; min-width: 300px; }
+    
+    .checkout-box { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 35px; margin-bottom: 25px; transition: 0.3s; }
+    .checkout-box h2 { margin-bottom: 25px; color: var(--text-main); font-weight: 800; border-bottom: 2px dashed var(--border); padding-bottom: 15px; font-size: 20px; }
+    
+    .item-list { display: flex; flex-direction: column; gap: 20px; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 25px; }
+    .item { display: flex; justify-content: space-between; align-items: center; }
+    .item-info { display: flex; gap: 15px; align-items: center; }
+    .item-info img { width: 70px; height: 70px; object-fit: cover; border-radius: 12px; border: 1px solid var(--border); }
+    .item-details h4 { margin: 0 0 5px; font-size: 15px; font-weight: 700; }
+    .item-details p { margin: 0; font-size: 13px; opacity: 0.7; font-weight: 500; }
+    
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px; font-weight: 500; opacity: 0.8; }
+    .total-price { font-size: 28px; font-weight: 900; text-align: right; margin-top: 20px; color: var(--primary); border-top: 2px dashed var(--border); padding-top: 20px; }
+    
+    .pay-action-btn { width: 100%; padding: 18px; margin-top: 20px; background: var(--text-main); color: var(--bg-color); border: none; border-radius: 20px; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; }
+    .pay-action-btn:hover { transform: translateY(-3px); opacity: 0.9; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    
+    .select-kurir { width: 100%; padding: 18px 20px; border-radius: 15px; border: 2px solid var(--border); background: var(--bg-color); color: var(--text-main); font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 600; outline: none; margin-bottom: 20px; cursor: pointer; transition: 0.3s; }
+    .select-kurir:focus { border-color: var(--primary); }
+
+    /* LABEL PO DI CHECKOUT */
+    .label-po { display: inline-block; background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 800; margin-top: 5px; text-transform: uppercase; }
+
+    body.dark .swal2-popup { background: var(--nav-bg) !important; color: var(--text-main) !important; border: 1px solid var(--border); }
+    body.dark .swal2-title { color: var(--text-main) !important; }
+  </style>
+</head>
+<body>
+
+  <header data-aos="fade-down">
+    <div class="logo">PANDA<span>REBAHAN</span></div>
+    <nav>
+      <button id="themeToggle">🌙 Gelap</button>
+      <a href="../index.html">Home</a>
+      <a href="cart.html" style="color: #e74c3c; font-weight: 700;">← Keranjang</a>
+    </nav>
+  </header>
+
+  <section class="checkout-section">
+    <div class="checkout-left" data-aos="fade-right">
+      <div class="checkout-box">
+        <h2>🛍️ Ringkasan Pesanan</h2>
+        <div class="item-list" id="checkoutList"><p>Sedang memuat data...</p></div>
+        <div class="summary-row"><span>Subtotal Produk:</span> <strong id="subtotalLabel">Rp0</strong></div>
+        <div class="summary-row"><span>Ongkos Kirim (<span id="kurirLabel">-</span>):</span> <strong id="ongkirLabel">Pilih alamat dulu</strong></div>
+        <div class="total-price" id="grandTotal">Total: Rp0</div>
+      </div>
+    </div>
+
+    <div class="checkout-right" data-aos="fade-left" data-aos-delay="100">
+      <div class="checkout-box">
+        <h2>📍 Alamat Pengiriman</h2>
+        <select id="kotaTujuan" class="select-kurir" onchange="hitungOngkir()">
+          <option value="">-- Pilih Kota Tujuan --</option>
+          <option value="151">Jakarta Barat</option>
+          <option value="153">Jakarta Selatan</option>
+          <option value="23">Bandung</option>
+          <option value="444">Surabaya</option>
+          <option value="501">Yogyakarta</option>
+        </select>
+        <h2 style="margin-top: 10px;">🚚 Pilih Ekspedisi</h2>
+        <select id="pilihanKurir" class="select-kurir" onchange="hitungOngkir()">
+          <option value="jne">JNE (Rekomendasi)</option>
+          <option value="pos">POS Indonesia</option>
+          <option value="tiki">TIKI</option>
+        </select>
+      </div>
+
+      <div class="checkout-box">
+        <h2>💳 Pembayaran Otomatis</h2>
+        <p style="opacity: 0.8; margin-bottom: 20px; font-size: 14px; line-height: 1.6;">
+          PandaRebahan menggunakan Midtrans. Bayar via QRIS, Transfer Bank, atau GoPay.
+        </p>
+        <button class="pay-action-btn" id="btnPay" onclick="processPayment()">Lanjut Pembayaran</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
+
+  <script>
+    AOS.init({ once: true });
+    
+    // DARK MODE LOGIC
+    const themeBtn = document.getElementById("themeToggle");
+    if(localStorage.getItem("temaPanda") === "gelap") { document.body.classList.add("dark"); themeBtn.innerHTML = "☀️ Terang"; }
+    themeBtn.onclick = () => {
+        document.body.classList.toggle("dark");
+        if(document.body.classList.contains("dark")) { themeBtn.innerHTML = "☀️ Terang"; localStorage.setItem("temaPanda", "gelap"); } 
+        else { themeBtn.innerHTML = "🌙 Gelap"; localStorage.setItem("temaPanda", "terang"); }
+    };
+
+    const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const app = initializeApp({ apiKey: "AIzaSyAeYwblUK5lo3l14fjo7LJ9dyyEmxT4TaI", authDomain: "pandarebahan132703.firebaseapp.com", projectId: "pandarebahan132703", storageBucket: "pandarebahan132703.firebasestorage.app", messagingSenderId: "119871759918", appId: "1:119871759918:web:011d6094b297705b7ea1bf" });
+    const auth = getAuth(app); const db = getFirestore(app);
+    
+    let currentUser = null; 
+    let checkoutItems = []; 
+    let subtotalBarang = 0; 
+    let ongkosKirim = 0; 
+    let grandTotalNominal = 0;
+    
+    // Variabel Detektor PO
+    let isAdaBarangPO = false;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) { currentUser = user; loadCheckoutItems(); } 
+      else { window.location.href = "login.html"; }
+    });
+
+    async function loadCheckoutItems() {
+      const stored = localStorage.getItem("checkoutItems");
+      if (!stored) return window.location.href = "cart.html";
+      checkoutItems = JSON.parse(stored);
+      
+      const listContainer = document.getElementById("checkoutList");
+      subtotalBarang = 0; listContainer.innerHTML = "";
+      isAdaBarangPO = false; // Reset status PO
+      
+      for(let item of checkoutItems) {
+        // Hapus teks "Rp" dan "." dari price untuk hitungan
+        let cleanPrice = typeof item.price === 'string' ? parseInt(item.price.replace(/\D/g, '')) : item.price;
+        let sub = cleanPrice * item.quantity;
+        subtotalBarang += sub;
+
+        // CEK APAKAH BARANG INI PO (Harus ambil info dari Database Product)
+        let labelHTML = "";
+        try {
+            const q = query(collection(db, "products"), where("name", "==", item.name));
+            const snap = await getDocs(q);
+            if (!snap.empty) {
+                const dataDb = snap.docs[0].data();
+                if(dataDb.tipe && dataDb.tipe !== "Ready Stock") {
+                    isAdaBarangPO = true; // Ketemu 1 barang PO aja, maka seluruh pesanan dianggap PO
+                    labelHTML = `<span class="label-po">⏳ PO: ${dataDb.tipe}</span>`;
+                }
+            }
+        } catch(e) { console.error("Gagal ngecek tipe barang:", e); }
+
+        listContainer.innerHTML += `
+            <div class="item">
+                <div class="item-info">
+                    <img src="../${item.image}" alt="">
+                    <div class="item-details">
+                        <h4>${item.name}</h4>
+                        <p>${item.quantity} x Rp${cleanPrice.toLocaleString('id-ID')}</p>
+                        ${labelHTML}
+                    </div>
+                </div>
+                <div style="font-weight:800; font-size:16px;">Rp${sub.toLocaleString('id-ID')}</div>
+            </div>`;
+      }
+
+      document.getElementById("subtotalLabel").innerText = `Rp${subtotalBarang.toLocaleString('id-ID')}`;
+      grandTotalNominal = subtotalBarang;
+      document.getElementById("grandTotal").innerHTML = `Total: Rp${grandTotalNominal.toLocaleString('id-ID')}`;
+    }
+
+    window.hitungOngkir = async function() {
+      const kotaId = document.getElementById("kotaTujuan").value;
+      const kurir = document.getElementById("pilihanKurir").value;
+      if (!kotaId) return;
+
+      document.getElementById("kurirLabel").innerText = kurir.toUpperCase();
+      document.getElementById("ongkirLabel").innerText = "Menghitung...";
+      
+      try {
+        const response = await fetch("/cek-ongkir", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ destinationCityId: kotaId, weight: 500, courier: kurir })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          ongkosKirim = data.ongkir;
+          document.getElementById("ongkirLabel").innerText = `Rp${ongkosKirim.toLocaleString('id-ID')} (${data.estimasi})`;
+          grandTotalNominal = subtotalBarang + ongkosKirim;
+          document.getElementById("grandTotal").innerHTML = `Total: Rp${grandTotalNominal.toLocaleString('id-ID')}`;
+        } else {
+          Toast.fire({ icon: 'error', title: data.error || "Gagal hitung ongkir!" });
+          document.getElementById("ongkirLabel").innerText = "Gagal dihitung";
+        }
+      } catch (e) { 
+        Toast.fire({ icon: 'error', title: "Server belum nyala A!" });
+        document.getElementById("ongkirLabel").innerText = "Server Error";
+      }
+    }
+
+    window.processPayment = async function() {
+      if(ongkosKirim === 0) return Swal.fire('Tunggu!', 'Pilih alamat tujuan dulu A biar ongkirnya dihitung.', 'warning');
+      const kurirDipilih = document.getElementById("pilihanKurir").options[document.getElementById("pilihanKurir").selectedIndex].text;
+      const btnPay = document.getElementById("btnPay");
+      btnPay.disabled = true; btnPay.innerHTML = "Memuat Snap...";
+      
+      const orderId = "PNDA-" + new Date().getTime();
+
+      try {
+        const response = await fetch("/buat-transaksi", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId: orderId, totalHarga: grandTotalNominal, email: currentUser.email })
+        });
+        const data = await response.json();
+
+        if (data.token) {
+          window.snap.pay(data.token, {
+            onSuccess: async () => { 
+                // LOGIKA PO: Set status berdasarkan isAdaBarangPO
+                let statusSukses = isAdaBarangPO ? "Diproses (Pre-Order)" : "Dalam Proses Pengemasan";
+                await simpanPesanan(statusSukses, "Midtrans Lunas", orderId, kurirDipilih); 
+            },
+            onPending: async () => { await simpanPesanan("Menunggu Pembayaran", "Midtrans Pending", orderId, kurirDipilih); },
+            onClose: () => { btnPay.disabled = false; btnPay.innerHTML = "Lanjut Pembayaran"; }
+          });
+        } else {
+          Toast.fire({ icon: 'error', title: "Gagal dapat token Midtrans!" });
+          btnPay.disabled = false; btnPay.innerHTML = "Lanjut Pembayaran";
+        }
+      } catch (e) { 
+        Toast.fire({ icon: 'error', title: "Backend (server.js) belum jalan!" });
+        btnPay.disabled = false; btnPay.innerHTML = "Lanjut Pembayaran";
+      }
+    }
+
+    async function simpanPesanan(status, metode, id, kurir) {
+      try {
+        Swal.fire({ title: 'Memproses Pesanan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+        // Kurangi stok database kalo barang Ready Stock
+        for (let item of checkoutItems) {
+          const q = query(collection(db, "products"), where("name", "==", item.name));
+          const snap = await getDocs(q);
+          if (!snap.empty) {
+            let dataDb = snap.docs[0].data();
+            let s = dataDb.stock || 0;
+            // Kalau ready stock, kurangi stoknya (PO ngga usah dikurangin karena diproduksi sesuai order)
+            if(!dataDb.tipe || dataDb.tipe === "Ready Stock") {
+                await updateDoc(doc(db, "products", snap.docs[0].id), { stock: Math.max(0, s - item.quantity) });
+            }
+          }
+        }
+
+        // Simpan Data Pesanan ke Firebase
+        await addDoc(collection(db, "orders"), { invoiceId: id, userId: currentUser.uid, userEmail: currentUser.email, items: checkoutItems, ongkir: ongkosKirim, totalPrice: grandTotalNominal, paymentMethod: metode, ekspedisi: kurir, status: status, resi: "Belum ada resi", isPreOrder: isAdaBarangPO, createdAt: new Date().toISOString() });
+        
+        // Hapus Keranjang Lokal
+        localStorage.removeItem("checkoutItems");
+        window.location.href = "pesanan.html";
+
+      } catch (e) { console.error(e); Swal.fire('Gagal!', 'Terjadi kesalahan saat menyimpan pesanan.', 'error'); }
+    }
+  </script>
+</body>
+</html>

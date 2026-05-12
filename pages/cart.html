@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="su">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keranjang | PandaRebahan</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .cart-section {
+      padding: 150px 8%;
+    }
+    .cart-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 40px;
+    }
+    .cart-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      transition: 0.3s;
+    }
+    .cart-check {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+    .cart-item img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 15px;
+    }
+    .cart-info {
+      flex: 1;
+    }
+    .cart-info h3 {
+      margin-bottom: 5px;
+      font-size: 18px;
+    }
+    .cart-info span {
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .quantity {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    .quantity button {
+      width: 30px;
+      height: 30px;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .remove-btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 12px;
+      background: #c0392b;
+      color: white;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .cart-total {
+      margin-top: 40px;
+      text-align: right;
+      background: var(--card);
+      padding: 30px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+    .cart-total h2 {
+      margin-bottom: 20px;
+    }
+    .checkout-btn {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 15px;
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    @media(max-width:768px) {
+      .cart-item {
+        flex-direction: column;
+        text-align: center;
+      }
+      .cart-total {
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header>
+    <div class="logo">
+      PANDA<span>REBAHAN</span>
+    </div>
+    <nav>
+      <a href="../index.html">Home</a>
+      <a href="explore.html">Explore</a>
+    </nav>
+    <button id="themeToggle">Mode</button>
+  </header>
+
+  <!-- CART SECTION -->
+  <section class="cart-section">
+    <div class="title">Keranjang Manéh</div>
+    
+    <div class="cart-container" id="cartContainer">
+      <p style="text-align: center;">Keur nyandak data keranjang...</p>
+    </div>
+
+    <div class="cart-total" id="cartTotalSection" style="display: none;">
+      <h2 id="totalPrice">Total: Rp0</h2>
+      <button class="checkout-btn" onclick="goCheckout()">Lanjut ka Pembayaran</button>
+    </div>
+  </section>
+
+  <!-- SCRIPT THEME -->
+  <script>
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.onclick = () => {
+      document.body.classList.toggle("light");
+    };
+  </script>
+
+  <!-- FIREBASE KERANJANG -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeYwblUK5lo3l14fjo7LJ9dyyEmxT4TaI",
+      authDomain: "pandarebahan132703.firebaseapp.com",
+      projectId: "pandarebahan132703",
+      storageBucket: "pandarebahan132703.firebasestorage.app",
+      messagingSenderId: "119871759918",
+      appId: "1:119871759918:web:011d6094b297705b7ea1bf",
+      measurementId: "G-X2J420R961"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let cartItems = [];
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        loadCart();
+      } else {
+        alert("Punteun, login heula ngarah bisa muka keranjang!");
+        window.location.href = "login.html";
+      }
+    });
+
+    // FUNGSI NGAMBIL DATA DARI DATABASE
+    async function loadCart() {
+      const container = document.getElementById("cartContainer");
+      const totalSection = document.getElementById("cartTotalSection");
+      
+      try {
+        const cartRef = doc(db, "carts", currentUser.uid);
+        const cartSnap = await getDoc(cartRef);
+
+        if (cartSnap.exists()) {
+          cartItems = cartSnap.data().items || [];
+        } else {
+          cartItems = [];
+        }
+
+        renderCart();
+
+        if (cartItems.length > 0) {
+          totalSection.style.display = "block";
+        } else {
+          totalSection.style.display = "none";
+        }
+
+      } catch (error) {
+        console.error("Error ngambil keranjang: ", error);
+        container.innerHTML = "<p style='text-align:center;'>Gagal nyandak data keranjang.</p>";
+      }
+    }
+
+    // FUNGSI NAMPILIN KE LAYAR
+    function renderCart() {
+      const container = document.getElementById("cartContainer");
+      container.innerHTML = "";
+      let total = 0;
+
+      if (cartItems.length === 0) {
+        container.innerHTML = "<p style='text-align:center;'>Keranjang masih kosong mang, hayu balanja heula!</p>";
+        document.getElementById("totalPrice").innerHTML = "Total: Rp0";
+        return;
+      }
+
+      cartItems.forEach((item, index) => {
+        // Otomatis centang kalau baru diload (bisa di uncheck nanti)
+        if (item.selected === undefined) item.selected = true;
+
+        if (item.selected) {
+          let priceNumber = parseInt(item.price.replace("Rp", "").replace("K", "000").replace(/\./g, ''));
+          total += priceNumber * item.quantity;
+        }
+
+        container.innerHTML += `
+          <div class="cart-item">
+            <input type="checkbox" class="cart-check" onchange="toggleItem(${index})" ${item.selected ? 'checked' : ''}>
+            <img src="${item.image}" alt="">
+            <div class="cart-info">
+              <h3>${item.name}</h3>
+              <span>${item.price}</span>
+              <div class="quantity">
+                <button onclick="updateQty(${index}, -1)">-</button>
+                <strong>${item.quantity}</strong>
+                <button onclick="updateQty(${index}, 1)">+</button>
+              </div>
+            </div>
+            <button class="remove-btn" onclick="removeItem(${index})">Hapus</button>
+          </div>
+        `;
+      });
+
+      document.getElementById("totalPrice").innerHTML = "Total: Rp" + total.toLocaleString('id-ID');
+    }
+
+    // FUNGSI CENTANG / UNCENTANG
+    window.toggleItem = function(index) {
+      cartItems[index].selected = !cartItems[index].selected;
+      renderCart(); // Nggak perlu disave ke database kalau cuma milih buat checkout
+    };
+
+    // FUNGSI UBAH JUMLAH (+ / -)
+    window.updateQty = async function(index, delta) {
+      if (cartItems[index].quantity + delta > 0) {
+        cartItems[index].quantity += delta;
+        renderCart(); // Update layar langsung biar ga lemot
+        
+        // Simpan ke database di belakang layar
+        const cartRef = doc(db, "carts", currentUser.uid);
+        await setDoc(cartRef, { items: cartItems });
+      }
+    };
+
+    // FUNGSI HAPUS BARANG DARI KERANJANG
+    window.removeItem = async function(index) {
+      if (confirm("Yakin rék ngahapus ieu tina keranjang?")) {
+        cartItems.splice(index, 1);
+        renderCart();
+        
+        const cartRef = doc(db, "carts", currentUser.uid);
+        await setDoc(cartRef, { items: cartItems });
+        
+        if (cartItems.length === 0) {
+          document.getElementById("cartTotalSection").style.display = "none";
+        }
+      }
+    };
+
+    // FUNGSI MENUJU CHECKOUT
+    window.goCheckout = function() {
+      let selectedItems = cartItems.filter(item => item.selected);
+
+      if (selectedItems.length === 0) {
+        alert("Pilih heula atuh produk nu rék di-checkout (Centang heula)!");
+        return;
+      }
+
+      // Simpan data barang yang di-checkout sementara ke LocalStorage buat dibaca di halaman checkout
+      localStorage.setItem("checkoutItems", JSON.stringify(selectedItems));
+      window.location.href = "checkout.html";
+    };
+  </script>
+
+</body>
+</html>

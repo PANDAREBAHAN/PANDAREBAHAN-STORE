@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="su">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice | PandaRebahan</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .invoice-section { padding: 150px 8% 100px; display: flex; justify-content: center; }
+    .invoice-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 40px; max-width: 600px; width: 100%; text-align: center; }
+    .invoice-box h2 { color: var(--primary); margin-bottom: 10px; }
+    .inv-number { font-size: 18px; font-weight: 700; letter-spacing: 2px; margin-bottom: 30px; opacity: 0.8; }
+    .total-amount { font-size: 36px; font-weight: 800; color: #2ecc71; margin-bottom: 10px; }
+    .payment-info { background: var(--bg); border: 1px dashed var(--border); border-radius: 15px; padding: 20px; margin: 30px 0; text-align: left; }
+    .payment-info h4 { margin-bottom: 15px; color: var(--primary); }
+    .account-detail { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
+    .account-name { font-size: 14px; opacity: 0.7; }
+    .btn-wa { display: inline-block; width: 100%; padding: 18px; background: #25D366; color: white; text-decoration: none; border-radius: 15px; font-size: 18px; font-weight: 700; transition: 0.3s; margin-top: 10px; }
+    .btn-wa:hover { background: #20b858; transform: translateY(-3px); }
+    .btn-secondary { display: inline-block; width: 100%; padding: 15px; background: transparent; border: 1px solid var(--border); color: var(--text); text-decoration: none; border-radius: 15px; font-size: 16px; font-weight: 600; margin-top: 15px; transition: 0.3s; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">PANDA<span>REBAHAN</span></div>
+    <button id="themeToggle">Mode</button>
+  </header>
+
+  <section class="invoice-section">
+    <div class="invoice-box" id="invoiceContent">
+      <h2>Memuat Tagihan...</h2>
+    </div>
+  </section>
+
+  <script>
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.onclick = () => document.body.classList.toggle("light");
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeYwblUK5lo3l14fjo7LJ9dyyEmxT4TaI",
+      authDomain: "pandarebahan132703.firebaseapp.com",
+      projectId: "pandarebahan132703",
+      storageBucket: "pandarebahan132703.firebasestorage.app",
+      messagingSenderId: "119871759918",
+      appId: "1:119871759918:web:011d6094b297705b7ea1bf",
+      measurementId: "G-X2J420R961"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const orderId = localStorage.getItem("currentOrderId");
+
+    async function loadInvoice() {
+      const container = document.getElementById("invoiceContent");
+
+      if (!orderId) {
+        container.innerHTML = "<h2>Tagihan tidak ditemukan</h2><a href='../index.html' class='btn-secondary'>Kembali ke Home</a>";
+        return;
+      }
+
+      try {
+        const orderSnap = await getDoc(doc(db, "orders", orderId));
+        if (!orderSnap.exists()) {
+          container.innerHTML = "<h2>Tagihan tidak valid</h2>";
+          return;
+        }
+
+        const data = orderSnap.data();
+        
+        let accountNo = "";
+        let accountName = "A/N PandaRebahan (Doni Irawan)";
+        
+        if(data.paymentMethod === "DANA") accountNo = "0812-3456-7890 (DANA)";
+        else if(data.paymentMethod === "OVO") accountNo = "0812-3456-7890 (OVO)";
+        else if(data.paymentMethod === "GoPay") accountNo = "0812-3456-7890 (GoPay)";
+        else if(data.paymentMethod === "ShopeePay") accountNo = "0812-3456-7890 (ShopeePay)";
+        else if(data.paymentMethod === "Bank BCA") accountNo = "1234567890 (BCA)";
+        else accountNo = "Scan QRIS di WhatsApp Admin";
+
+        // PERHATIKAN BAGIAN INI: Ganti dengan nomor yang benar, jangan pakai +, jangan pakai 08
+        const adminWA = "6289603079951"; 
+        
+        const waText = encodeURIComponent(`Halo Admin PandaRebahan, saya ingin konfirmasi pembayaran.\n\nNomor Invoice: ${data.invoiceId}\nMetode: ${data.paymentMethod}\nTotal: Rp${data.totalPrice.toLocaleString('id-ID')}\n\nBerikut bukti transfernya:`);
+        
+        // Ganti link pakai API resmi biar gak error
+        const waLink = `https://api.whatsapp.com/send?phone=${adminWA}&text=${waText}`;
+
+        container.innerHTML = `
+          <h2>Selesaikan Pembayaran</h2>
+          <div class="inv-number">${data.invoiceId}</div>
+          
+          <p>Total yang harus dibayar:</p>
+          <div class="total-amount">Rp${data.totalPrice.toLocaleString('id-ID')}</div>
+
+          <div class="payment-info">
+            <h4>Transfer ke:</h4>
+            <div class="account-detail">${accountNo}</div>
+            <div class="account-name">${accountName}</div>
+            <p style="margin-top: 15px; font-size: 13px; opacity: 0.8;">Pastikan nominal transfer sesuai hingga 3 digit terakhir untuk memudahkan pengecekan.</p>
+          </div>
+
+          <!-- Tambah target="_blank" dan rel="noopener noreferrer" biar aman ngebuka tab baru -->
+          <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="btn-wa">Konfirmasi via WhatsApp</a>
+          <a href="pesanan.html" class="btn-secondary">Cek Status Pesanan Nanti</a>
+        `;
+
+      } catch (error) {
+        console.error("Error loading invoice:", error);
+        container.innerHTML = "<h2>Gagal memuat tagihan</h2>";
+      }
+    }
+
+    loadInvoice();
+  </script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="su">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar | PandaRebahan</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.min.css" rel="stylesheet">
+
+  <style>
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: var(--bg); overflow: hidden; }
+    .auth-container { width: 100%; max-width: 400px; padding: 40px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.1); text-align: center; }
+    .auth-container h2 { color: var(--primary); margin-bottom: 10px; font-size: 28px; }
+    .auth-container p { opacity: 0.7; margin-bottom: 30px; font-size: 14px; }
+    .input-group { margin-bottom: 20px; text-align: left; }
+    .input-group label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 14px; }
+    .input-group input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; }
+    .btn-auth { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+    .btn-auth:hover { opacity: 0.8; transform: translateY(-2px); }
+    .auth-link { margin-top: 25px; font-size: 14px; }
+    .auth-link a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    
+    /* CUSTOM SWEETALERT BIAR NYATU SAMA TEMA */
+    .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 20px !important; }
+  </style>
+</head>
+<body>
+
+  <div class="auth-container">
+    <h2>Daftar Akun</h2>
+    <p>Hayu gabung jadi barudak PandaRebahan!</p>
+
+    <form id="registerForm">
+      <div class="input-group">
+        <label>Alamat Email</label>
+        <input type="email" id="email" required>
+      </div>
+      <div class="input-group">
+        <label>Password (Min. 6 Karakter)</label>
+        <input type="password" id="password" required>
+      </div>
+      <button type="submit" class="btn-auth" id="regBtn">Daftar Ayeuna</button>
+    </form>
+
+    <div class="auth-link">Enggeus boga akun? <a href="login.html">Login di dieu</a></div>
+    <a href="../index.html" style="display:block; margin-top:20px; font-size:13px; opacity:0.6; color:var(--text); text-decoration:none;">← Balik ka Home</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const app = initializeApp({
+      apiKey: "AIzaSyAeYwblUK5lo3l14fjo7LJ9dyyEmxT4TaI",
+      authDomain: "pandarebahan132703.firebaseapp.com",
+      projectId: "pandarebahan132703",
+      storageBucket: "pandarebahan132703.firebasestorage.app",
+      messagingSenderId: "119871759918",
+      appId: "1:119871759918:web:011d6094b297705b7ea1bf"
+    });
+    const auth = getAuth(app);
+
+    // Kumpulan Animasi Notif Mini (Toast)
+    const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
+
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const pass = document.getElementById("password").value;
+      const btn = document.getElementById("regBtn");
+
+      btn.innerHTML = "Sakedap..."; btn.disabled = true;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        await sendEmailVerification(userCredential.user);
+        await signOut(auth);
+
+        // POPUP CANTIK BUAT VERIFIKASI
+        Swal.fire({
+            title: 'Akun Jadi! 🐼',
+            html: `Mantap, akun Aa udah beres!<br><br>Sekarang tolong cek email <b>${email}</b> buat klik link verifikasi sebelum login ya. <br><br><small style="color:red;"><i>*Cek folder Spam juga bisi nyasar.</i></small>`,
+            icon: 'success',
+            confirmButtonText: 'Siap, Meluncur ke Email!',
+            confirmButtonColor: '#00b894'
+        }).then((result) => {
+            window.location.href = "login.html";
+        });
+
+      } catch (error) {
+        let msg = "Gagal daftar euy.";
+        if(error.code === 'auth/email-already-in-use') msg = "Email ieu geus dipake mang!";
+        else if(error.code === 'auth/weak-password') msg = "Passwordna minimal 6 karakter atuh.";
+        
+        Toast.fire({ icon: 'error', title: msg });
+        btn.innerHTML = "Daftar Ayeuna"; btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

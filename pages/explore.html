@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="su">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explore | PandaRebahan</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* Styling Dasar Kartu Produk (Asumsi ada di style.css, saya tambahin jaga-jaga) */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding: 20px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 15px; overflow: hidden; position: relative; transition: 0.3s; }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .card img { width: 100%; height: 250px; object-fit: cover; }
+    .card-body { padding: 20px; }
+    .card-body h3 { font-size: 18px; margin-bottom: 5px; }
+    .card-body p { font-size: 13px; opacity: 0.7; margin-bottom: 5px; }
+
+    /* Tombol Aksi */
+    .btn-soldout { background: #555 !important; color: #aaa !important; cursor: not-allowed !important; border: 1px solid #444 !important; }
+    .product-action { display: flex; gap: 10px; margin-top: 15px; }
+    .product-action button { flex: 1; padding: 10px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+    .btn-detail { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-detail:hover { border-color: var(--primary); }
+    .btn-add { background: var(--primary); color: white; }
+    .btn-add:hover { opacity: 0.8; }
+
+    /* BADGE PRE-ORDER PREMIUM */
+    .badge-po {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #e74c3c;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      z-index: 10;
+      box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+    }
+    body.dark .badge-po { background: #ff7675; box-shadow: 0 4px 12px rgba(255, 118, 117, 0.4); }
+  </style>
+</head>
+<body>
+
+  <div id="toast-container"></div> 
+  <header>
+    <div class="logo">PANDA<span>REBAHAN</span></div>
+    <nav>
+      <a href="../index.html">Home</a>
+      <a href="#ready">Ready Stock</a>
+      <a href="#po">Pre Order</a>
+      <a href="cart.html">Keranjang</a>
+    </nav>
+    <button id="themeToggle">Mode</button>
+  </header>
+
+  <section class="explore-page" style="padding: 120px 8% 50px; text-align: center;">
+    <p class="mini-text" style="color: var(--primary); font-weight: 700; letter-spacing: 1px;">PandaRebahan Collection</p>
+    <h1 style="font-size: 40px; font-weight: 800; margin-bottom: 10px;">Katalog Produk</h1>
+    <p class="explore-subtitle" style="opacity: 0.7;">Pilih outfit santuy nu paling cocok keur maneh.</p>
+  </section>
+
+  <section class="products" id="ready" style="padding: 20px 8%;">
+    <div class="title" style="font-size: 24px; font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px;">🟢 Ready Stock</div>
+    <div class="product-grid" id="readyGrid"><p style="text-align: center; width: 100%;">Keur nyandak data...</p></div>
+  </section>
+
+  <section class="products" id="po" style="padding: 50px 8% 100px;">
+    <div class="title" style="font-size: 24px; font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px;">⏳ Pre-Order (PO)</div>
+    <div class="product-grid" id="poGrid"><p style="text-align: center; width: 100%;">Keur nyandak data...</p></div>
+  </section>
+
+  <footer style="text-align: center; padding: 30px; opacity: 0.5; font-size: 14px;">
+    © 2026 PandaRebahan. Sadayana Hak Dilindungi.
+  </footer>
+
+  <script>
+    // Mode Gelap (Local Storage Check)
+    const themeToggle = document.getElementById("themeToggle");
+    if(localStorage.getItem("temaPanda") === "gelap") {
+        document.body.classList.add("dark");
+    }
+    themeToggle.onclick = () => {
+        document.body.classList.toggle("dark");
+        if(document.body.classList.contains("dark")) {
+            localStorage.setItem("temaPanda", "gelap");
+        } else {
+            localStorage.setItem("temaPanda", "terang");
+        }
+    }
+
+    window.goProduct = function(name, price, image) {
+      localStorage.setItem("selectedProduct", JSON.stringify({ name, price, image }));
+      window.location.href = "product.html";
+    }
+
+    // FUNGSI TOAST
+    function showToast(message, isError = false) {
+      const toastContainer = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.classList.add("toast");
+      if(isError) toast.classList.add("error");
+      toast.innerText = message;
+      toastContainer.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add("hide");
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeYwblUK5lo3l14fjo7LJ9dyyEmxT4TaI",
+      authDomain: "pandarebahan132703.firebaseapp.com",
+      projectId: "pandarebahan132703",
+      storageBucket: "pandarebahan132703.firebasestorage.app",
+      messagingSenderId: "119871759918",
+      appId: "1:119871759918:web:011d6094b297705b7ea1bf"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    onAuthStateChanged(auth, (user) => { currentUser = user; });
+
+    async function fetchProducts() {
+      const readyGrid = document.getElementById("readyGrid");
+      const poGrid = document.getElementById("poGrid");
+      
+      try {
+        const querySnapshot = await getDocs(collection(db, "products"));
+        let readyHTML = "", poHTML = "";
+        
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          
+          // Logika Penentu PO atau Ready (Ambil dari field 'tipe' yang dibuat di Admin)
+          const isReady = !data.tipe || data.tipe === "Ready Stock"; 
+          
+          const stock = data.stock || 0;
+          const isSoldOut = isReady && stock <= 0;
+
+          // Siapin Badge PO kalau dia bukan barang ready
+          const badgePO = !isReady ? `<div class="badge-po">PRE-ORDER</div>` : '';
+
+          // Format Harga (Cek kalo format string/number)
+          let hargaTampil = data.price;
+          if (typeof data.price === 'number') {
+              hargaTampil = "Rp" + data.price.toLocaleString('id-ID');
+          }
+
+          const cardHTML = `
+            <div class="card">
+              ${badgePO}
+              <img src="../${data.image}" alt="${data.name}">
+              <div class="card-body">
+                <span style="font-size:11px; opacity:0.6; text-transform:uppercase; font-weight:700;">${data.category || 'Pakaian'}</span>
+                <h3>${data.name}</h3>
+                
+                <p>${isReady ? (isSoldOut ? '❌ Habis euy!' : `Sisa stok: <b>${stock} pcs</b>`) : `<span style="color:#e74c3c;">⏳ Estimasi: ${data.tipe}</span>`}</p>
+                
+                <span style="color: var(--primary); font-size: 18px; font-weight: 800; display: block; margin-top: 10px;">${hargaTampil}</span>
+                
+                <div class="product-action">
+                  <button class="btn-detail" onclick="goProduct('${data.name}', '${data.price}', '${data.image}')">Detail</button>
+                  ${isSoldOut ? `<button class="btn-soldout" disabled>Habis</button>` : `<button class="btn-add" onclick="addToCart('${data.name}', '${data.price}', '${data.image}')">+ Keranjang</button>`}
+                </div>
+              </div>
+            </div>`;
+
+          // Pisahin masuk ke section yang mana
+          if (isReady) readyHTML += cardHTML; 
+          else poHTML += cardHTML;
+        });
+
+        readyGrid.innerHTML = readyHTML || "<p style='grid-column: 1/-1; text-align: center;'>Can aya produk ready stock.</p>";
+        poGrid.innerHTML = poHTML || "<p style='grid-column: 1/-1; text-align: center;'>Can aya produk pre-order.</p>";
+        
+      } catch (error) { 
+          console.error("Gagal narik data:", error); 
+          readyGrid.innerHTML = "<p>Gagal narik data.</p>";
+      }
+    }
+    
+    fetchProducts();
+
+    window.addToCart = async function(name, price, image) {
+      if (!currentUser) {
+        showToast("Login heula mang ambeh bisa asup keranjang!", true);
+        setTimeout(() => window.location.href = "login.html", 1500);
+        return;
+      }
+      const cartRef = doc(db, "carts", currentUser.uid);
+      const cartSnap = await getDoc(cartRef);
+      let cart = cartSnap.exists() ? cartSnap.data().items || [] : [];
+      const existing = cart.find(item => item.name === name);
+      if (existing) existing.quantity += 1;
+      else cart.push({ name, price, image, quantity: 1 });
+      
+      await setDoc(cartRef, { items: cart });
+      showToast("Mantap! " + name + " asup ka keranjang. 🛒", false);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markas Admin | PandaRebahan</title>
+  
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <style>
+    /* THEME PANDAREBAHAN BENTOGRID (MODE TERANG DEFAULT) */
+    :root {
+      --panda-black: #1e272e;
+      --panda-white: #ffffff;
+      --bamboo-green: #00b894;
+      --bamboo-light: #e8f8f5;
+      --soft-bg: #f4f7f6;
+      --border: #dfe6e9;
+      --text-muted: #7f8c8d;
+    }
+
+    /* THEME MODE GELAP (NIGHT MODE) */
+    body.dark {
+      --panda-black: #f5f6fa;       /* Teks jadi putih */
+      --panda-white: #1e272e;       /* Card jadi abu-abu gelap */
+      --bamboo-green: #00cec9;      /* Hijau lebih terang biar kontras */
+      --bamboo-light: rgba(0, 206, 201, 0.15); /* Hijau transparan */
+      --soft-bg: #111418;           /* Background body hitam pekat */
+      --border: #2d3436;            /* Garis batas lebih gelap */
+      --text-muted: #a4b0be;        /* Teks abu-abu terang */
+    }
+
+    body {
+      background-color: var(--soft-bg);
+      font-family: 'Poppins', sans-serif;
+      color: var(--panda-black);
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    /* HEADER SANTUY */
+    header { background: var(--panda-white); box-shadow: none; border-bottom: 2px dashed var(--border); padding: 20px 8%; transition: background-color 0.4s ease; }
+    .logo span { color: var(--bamboo-green); }
+    .header-nav-link { color: var(--panda-black); font-weight: 600; text-decoration: none; margin-right: 20px; transition: 0.3s; }
+    .header-nav-link:hover { color: var(--bamboo-green); }
+
+    .admin-section { padding: 120px 5% 100px; max-width: 1400px; margin: 0 auto; }
+    
+    .header-title { font-weight: 900; font-size: 38px; color: var(--panda-black); letter-spacing: -1px; margin-bottom: 5px; transition: color 0.4s ease; }
+    .header-subtitle { font-size: 16px; color: var(--text-muted); font-weight: 600; margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
+
+    /* TOMBOL MODE GELAP */
+    #themeToggle { background: var(--panda-black); color: var(--panda-white); border: none; padding: 10px 20px; border-radius: 20px; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+    #themeToggle:hover { transform: scale(1.05); opacity: 0.9; }
+
+    /* BENTO GRID LAYOUT */
+    .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 25px; margin-bottom: 40px; }
+
+    /* KARTU BANTAL (PILLOW CARDS) */
+    .bento-card {
+      background: var(--panda-white);
+      border-radius: 35px;
+      padding: 35px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 2px solid transparent;
+    }
+    .bento-card:hover { transform: translateY(-8px); border-color: var(--bamboo-light); box-shadow: 0 15px 40px rgba(0, 184, 148, 0.1); }
+
+    /* SPANNING GRID */
+    .card-cuan { grid-column: span 8; background: var(--panda-black); color: var(--panda-white); position: relative; overflow: hidden; }
+    .card-paket { grid-column: span 4; background: var(--bamboo-light); }
+    .card-tabel { grid-column: span 12; }
+
+    /* TYPOGRAPHY CARD */
+    .card-label { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8; margin-bottom: 10px; display: block; }
+    .card-cuan .card-label { color: var(--bamboo-green); }
+    .card-cuan .value { font-size: 54px; font-weight: 900; letter-spacing: -2px; }
+    .card-paket .value { font-size: 54px; font-weight: 900; color: var(--bamboo-green); }
+
+    /* DEKORASI PANDA (BULATAN) */
+    .panda-ear { position: absolute; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%; top: -50px; right: -20px; }
+    .panda-ear-2 { position: absolute; width: 100px; height: 100px; background: var(--bamboo-light); border-radius: 50%; bottom: -20px; right: 50px; opacity: 0.5; }
+
+    /* TABEL MODERN & SANTUY */
+    table { width: 100%; border-collapse: separate; border-spacing: 0 15px; text-align: left; }
+    th { padding: 0 20px; font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    td { padding: 20px; background: var(--soft-bg); transition: background-color 0.4s ease; border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); }
+    tr td:first-child { border-radius: 20px 0 0 20px; border-left: 1px solid var(--border); }
+    tr td:last-child { border-radius: 0 20px 20px 0; border-right: 1px solid var(--border); }
+    tr:hover td { background: var(--bamboo-light); }
+
+    /* BADGES */
+    .badge { padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+    .badge-pending { background: #ffeaa7; color: #d35400; }
+    .badge-process { background: #74b9ff; color: #0984e3; }
+    .badge-shipped { background: #a29bfe; color: #6c5ce7; }
+    .badge-done { background: var(--bamboo-green); color: white; }
+
+    /* INPUT & BUTTONS KEKINIAN */
+    .controls { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; align-items: center;}
+    .controls input, .controls select { padding: 15px 20px; border: 2px solid var(--border); border-radius: 18px; background: var(--soft-bg); color: var(--panda-black); font-family: 'Poppins', sans-serif; font-weight: 600; outline: none; flex: 1; transition: 0.3s; }
+    .controls input:focus, .controls select:focus { border-color: var(--bamboo-green); box-shadow: 0 0 0 4px var(--bamboo-light); }
+    
+    .btn-add { background: var(--panda-black); color: var(--panda-white); border: none; padding: 15px 30px; border-radius: 18px; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+    .btn-add:hover { background: var(--bamboo-green); color: white; transform: scale(1.05); }
+
+    .btn-icon { background: var(--panda-white); color: var(--panda-black); border: 2px solid var(--border); width: 40px; height: 40px; border-radius: 12px; cursor: pointer; font-size: 18px; display: inline-flex; justify-content: center; align-items: center; transition: 0.2s; }
+    .btn-icon:hover { background: var(--bamboo-light); border-color: var(--bamboo-green); transform: translateY(-3px); }
+    .btn-icon.del:hover { background: #ff7675; border-color: #ff7675; color: white; }
+
+    /* Style pas input stok dimatiin (disabled) */
+    input:disabled { opacity: 0.5; cursor: not-allowed; background: var(--border) !important; }
+
+    @media(max-width: 900px) {
+      .card-cuan, .card-paket { grid-column: span 12; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="toast-container"></div> 
+  
+  <header data-aos="fade-down" style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="logo">PANDA<span>REBAHAN</span></div>
+    <nav style="display: flex; align-items: center; gap: 20px;">
+      <button id="themeToggle">🌙 Mode Malam</button>
+      <a href="../index.html" class="header-nav-link">🏠 Home</a>
+      <a href="#" id="btnLogout" style="color: #ff7675; font-weight: 800; text-decoration: none;">Keluar Kandang</a>
+    </nav>
+  </header>
+
+  <section class="admin-section">
+    <div data-aos="fade-right">
+      <h1 class="header-title">Halo, Bos Panda! 🐼</h1>
+      <div class="header-subtitle">
+        <span style="display:inline-block; width:10px; height:10px; background:var(--bamboo-green); border-radius:50%;"></span>
+        Sistem operasional berjalan lancar sambil rebahan.
+      </div>
+    </div>
+
+    <div class="bento-grid">
+      
+      <div class="bento-card card-cuan" data-aos="zoom-in" data-aos-delay="100">
+        <div class="panda-ear"></div>
+        <div class="panda-ear-2"></div>
+        <span class="card-label">💸 Cuan Masuk (Selesai)</span>
+        <div class="value" id="valCashflow">Rp0</div>
+        <div style="margin-top: 15px; font-size: 13px; opacity: 0.7;">*Total pendapatan bersih dari pesanan yang sudah diterima pembeli.</div>
+      </div>
+
+      <div class="bento-card card-paket" data-aos="zoom-in" data-aos-delay="200">
+        <span class="card-label">📦 Antrian Paket</span>
+        <div class="value" id="valActiveOrders">0</div>
+        <div style="margin-top: 15px; font-size: 13px; color: var(--panda-black); font-weight: 600;">Pesanan menunggu diproses & dikirim.</div>
+      </div>
+
+      <div class="bento-card card-tabel" data-aos="fade-up" data-aos-delay="300">
+        <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 25px;">📋 Daftar Tugas (Pesanan)</h2>
+        <div class="controls">
+          <input type="text" id="orderSearch" placeholder="🔍 Cari nama / email / ID..." onkeyup="filterOrders()">
+          <select id="statusFilter" onchange="filterOrders()">
+            <option value="all">Semua Status</option>
+            <option value="Menunggu Pembayaran">Menunggu Pembayaran</option>
+            <option value="Dalam Proses Pengemasan">Dalam Proses Pengemasan</option>
+            <option value="Diproses (Pre-Order)">Diproses (Pre-Order)</option>
+            <option value="Dikirim">Dikirim</option>
+            <option value="Selesai">Selesai</option>
+          </select>
+        </div>
+        <div id="tablePesanan" style="overflow-x: auto;">Memuat data pesanan...</div>
+      </div>
+
+      <div class="bento-card card-tabel" data-aos="fade-up" data-aos-delay="400">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+          <h2 style="font-size: 22px; font-weight: 800; margin: 0;">🗄️ Gudang Harta (Produk)</h2>
+          <span style="background: var(--bamboo-light); color: var(--bamboo-green); padding: 8px 15px; border-radius: 12px; font-weight: 800; font-size: 14px;">Total Macam: <span id="valTotalProducts">0</span></span>
+        </div>
+        
+        <div class="controls">
+          <input type="text" id="pName" placeholder="Nama Barang">
+          <input type="text" id="pPrice" placeholder="Harga (Rp)">
+          
+          <select id="pCat">
+            <option value="Hoodie">Hoodie</option>
+            <option value="Kaos">Kaos</option>
+            <option value="Crewneck">Crewneck</option>
+          </select>
+          
+          <select id="pType" style="border-color: var(--primary);" onchange="handleStockInput()">
+            <option value="Ready Stock">🟢 Ready Stock</option>
+            <option value="PO 7 Hari">⏳ PO (7 Hari)</option>
+            <option value="PO 14 Hari">⏳ PO (14 Hari)</option>
+          </select>
+
+          <input type="number" id="pStock" placeholder="Jml Stok (Kalo Ready)">
+
+          <input type="text" id="pImage" placeholder="Link Gambar">
+          <button class="btn-add" onclick="addProduct()">+ Simpan</button>
+        </div>
+        <div id="tableProduk" style="overflow-x: auto;">Memuat data produk...</div>
+      </div>
+
+    </div>
+  </section>
+
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({ once: true });
+
+    // === LOGIKA DARK MODE ===
+    const themeBtn = document.getElementById("themeToggle");
+    if(localStorage.getItem("temaPanda") === "gelap") {
+        document.body.classList.add("dark");
+        themeBtn.innerHTML = "☀️ Mode Siang";
+    }
+
+    themeBtn.onclick = () => {
+        document.body.classList.toggle("dark");
+        if(document.body.classList.contains("dark")) {
+            themeBtn.innerHTML = "☀️ Mode Siang";
+            localStorage.setItem("temaPanda", "gelap");
+        } else {
+            themeBtn.innerHTML = "🌙 Mode Malam";
+            localStorage.setItem("temaPanda", "terang");
+        }
+    };
+
+    function showToast(m, err=false) {
+      const c = document.getElementById("toast-container");
+      const t = document.createElement("div");
+      t.className = `toast ${err ? 'error' : ''}`; t.innerText = m;
+      c.appendChild(t);
+      setTimeout(() => { t.classList.add("hide"); setTimeout(() => t.remove(), 300); }, 3000);
+    }
+
+    // === FUNGSI MATIIN INPUT STOK KALO PO ===
+    function handleStockInput() {
+      const typeVal = document.getElementById("pType").value;
+      const stockInput = document.getElementById("pStock");
+      
+      if(typeVal !== "Ready Stock") {
+        stockInput.value = ""; // Kosongin nilainya
+        stockInput.disabled = true; // Matiin inputnya
+        stockInput.placeholder = "PO = Unlimited";
+      } else {
+        stockInput.disabled = false; // Nyalain lagi
+        stockInput.placeholder = "Jml Stok (Kalo Ready)";
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const app = initializeApp({ apiKey: "AIzaSyAeYwblUK5lo3l14fjo7LJ9dyyEmxT4TaI", authDomain: "pandarebahan132703.firebaseapp.com", projectId: "pandarebahan132703", storageBucket: "pandarebahan132703.firebasestorage.app", messagingSenderId: "119871759918", appId: "1:119871759918:web:011d6094b297705b7ea1bf" });
+    const db = getFirestore(app); const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if(user && user.email === "rebahanpanda@gmail.com") { loadOrders(); loadProducts(); } 
+      else { window.location.href = "../login.html"; }
+    });
+
+    document.getElementById("btnLogout").addEventListener("click", () => {
+        signOut(auth).then(() => { window.location.href = "../index.html"; });
+    });
+
+    window.loadOrders = function() {
+      onSnapshot(collection(db, "orders"), (snap) => {
+        let orders = []; let totalUang = 0; let totalAktif = 0;
+        snap.forEach(d => {
+            const data = d.data();
+            orders.push({id: d.id, ...data});
+            if(data.status === "Selesai") { totalUang += (data.totalPrice || 0); } 
+            else { totalAktif++; }
+        });
+        document.getElementById("valCashflow").innerText = "Rp" + totalUang.toLocaleString('id-ID');
+        document.getElementById("valActiveOrders").innerText = totalAktif;
+        orders.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+        renderOrders(orders);
+      });
+    }
+
+    function renderOrders(data) {
+      const cont = document.getElementById("tablePesanan") || document.getElementById("tabelPesanan");
+      if (!cont) return;
+
+      let html = `<table><tr><th>Info Pesanan</th><th>Barang</th><th>Total</th><th>Status</th><th>Aksi</th></tr>`;
+      data.forEach(o => {
+        let bClass = "badge-pending";
+        if(o.status === "Dalam Proses Pengemasan" || o.status === "Diproses (Pre-Order)") bClass = "badge-process";
+        if(o.status === "Dikirim") bClass = "badge-shipped";
+        if(o.status === "Selesai") bClass = "badge-done";
+
+        const kurirAktif = o.ekspedisi || "jne";
+        const resiTeks = o.resi || 'Belum ada resi';
+        
+        let btnKirimHTML = o.status === "Selesai" 
+            ? `<div style="font-size:12px; font-weight:800; color:var(--bamboo-green);">✔️ DONE</div>` 
+            : `<button class="btn-icon" onclick="shipOrder('${o.id}', '${kurirAktif}')" title="Buat Resi">✈️</button>`;
+
+        html += `
+          <tr class="order-row" data-status="${o.status}" data-search="${o.userEmail} ${o.invoiceId}">
+            <td><strong style="color:var(--panda-black); font-size:16px; font-weight:800;">${o.invoiceId || o.id.slice(0,8)}</strong><br><span style="font-size:12px; font-weight:600; color:var(--text-muted);">${o.userEmail}</span><br><span style="font-size:11px; font-weight:800; color:var(--bamboo-green); text-transform:uppercase;">Kurir: ${kurirAktif}</span></td>
+            <td><ul style="margin:0;padding-left:15px; font-size:13px; font-weight:600; color:var(--panda-black);">${o.items.map(i => `<li>${i.name} (${i.quantity})</li>`).join('')}</ul></td>
+            <td><strong style="font-size:16px; font-weight:900;">Rp${(o.totalPrice || 0).toLocaleString('id-ID')}</strong></td>
+            <td><span class="badge ${bClass}">${o.status}</span><br><div style="margin-top:8px; font-size:12px; font-weight:800; color:var(--panda-black);">${resiTeks}</div></td>
+            <td>
+              <div style="display:flex; gap:8px; align-items:center;">
+                ${btnKirimHTML}
+                <button class="btn-icon del" onclick="deleteOrder('${o.id}')" title="Hapus">🗑️</button>
+              </div>
+            </td>
+          </tr>`;
+      });
+      cont.innerHTML = html + `</table>`;
+    }
+
+    window.filterOrders = function() {
+      const search = document.getElementById("orderSearch").value.toLowerCase();
+      const status = document.getElementById("statusFilter").value;
+      document.querySelectorAll(".order-row").forEach(row => {
+        const mSearch = row.dataset.search.toLowerCase().includes(search);
+        const mStatus = status === "all" || row.dataset.status === status;
+        row.style.display = (mSearch && mStatus) ? "table-row" : "none";
+      });
+    }
+
+    window.shipOrder = async function(id, kurir) {
+      if(!confirm(`Kirim pesanan via ${kurir.toUpperCase()}?`)) return;
+      showToast("Sedang memproses resi...");
+      try {
+        const res = await fetch("/buat-resi", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId: id, kurirDipilih: kurir })
+        });
+        const data = await res.json();
+        if (data.resi_asli) {
+            await updateDoc(doc(db, "orders", id), { status: "Dikirim", resi: data.resi_asli });
+            showToast("Sukses! Resi: " + data.resi_asli);
+        } else { showToast("Gagal hitung API!", true); }
+      } catch (e) { showToast("Backend can jalan A!", true); }
+    }
+
+    window.deleteOrder = async (id) => { 
+      if(confirm("Yakin hapus pesanan ini?")) { await deleteDoc(doc(db, "orders", id)); showToast("Pesanan Dihapus"); }
+    }
+
+    window.loadProducts = async function() {
+      onSnapshot(collection(db, "products"), (snap) => {
+        let totalBarang = 0;
+        let html = `<table><tr><th>Info Produk</th><th>Kategori</th><th>Stok / Tipe</th><th>Aksi</th></tr>`;
+        snap.forEach(d => {
+          totalBarang++;
+          const p = d.data();
+          
+          // Render input stok kalo ready, render teks aja kalo PO
+          let stockDisplayHTML = "";
+          if(p.tipe && p.tipe !== "Ready Stock") {
+              stockDisplayHTML = `<span style="font-weight:700; color:#e74c3c;">${p.tipe}</span>`;
+          } else {
+              stockDisplayHTML = `<input type="number" value="${p.stock}" onchange="updateStock('${d.id}', this.value)" style="width:80px; padding:10px; border-radius:12px; border:2px solid var(--border); background:var(--panda-white); box-shadow:0 2px 10px rgba(0,0,0,0.05); color:var(--panda-black); outline:none; font-weight:900; font-size:16px; text-align:center;">`;
+          }
+
+          html += `<tr>
+            <td><div style="display:flex; align-items:center; gap:15px;"><img src="../${p.image}" width="60" height="60" style="border-radius:15px; object-fit:cover;"> <strong style="font-weight:800; font-size:15px;">${p.name}</strong></div></td>
+            <td><span style="background:var(--panda-white); border: 1px solid var(--border); padding:8px 15px; border-radius:12px; font-size:12px; font-weight:800; box-shadow:0 2px 10px rgba(0,0,0,0.05);">${p.category}</span></td>
+            <td>${stockDisplayHTML}</td>
+            <td><button class="btn-icon del" onclick="deleteProd('${d.id}')">🗑️</button></td>
+          </tr>`;
+        });
+        document.getElementById("valTotalProducts").innerText = totalBarang;
+        const c = document.getElementById("tableProduk") || document.getElementById("tabelProduk");
+        if(c) c.innerHTML = html + `</table>`;
+      });
+    }
+
+    window.updateStock = async (id, v) => { await updateDoc(doc(db, "products", id), { stock: parseInt(v) }); showToast("Stok Diupdate!"); }
+    window.deleteProd = async (id) => { if(confirm("Hapus produk ini?")) await deleteDoc(doc(db, "products", id)); }
+
+    // === UPDATE LOGIKA TAMBAH PRODUK ===
+    window.addProduct = async () => {
+      const n = document.getElementById('pName').value; 
+      const p = document.getElementById('pPrice').value;
+      const t = document.getElementById('pType').value;
+      const i = document.getElementById('pImage').value;
+      const k = document.getElementById('pCat').value;
+      
+      // Ambil nilai stok, kalo PO biarin 0 atau 999
+      let s = document.getElementById('pStock').value;
+      if (t !== "Ready Stock") {
+          s = 999; // Set ke 999 buat nandain unlimited
+      }
+
+      if(!n || !p || (t === "Ready Stock" && !s)) return showToast("Isi semua data produk!", true);
+      
+      await addDoc(collection(db, "products"), { 
+          name: n, 
+          price: p, 
+          stock: parseInt(s), 
+          category: k, 
+          tipe: t,
+          image: i || "images/default.jpg", 
+          createdAt: new Date().toISOString() 
+      });
+      
+      showToast("Produk Berhasil Ditambah!");
+      document.getElementById('pName').value = ""; 
+      document.getElementById('pPrice').value = ""; 
+      document.getElementById('pStock').value = ""; 
+      document.getElementById('pImage').value = "";
+      
+      // Reset dropdown dan nyalain lagi input stok
+      document.getElementById('pType').value = "Ready Stock";
+      handleStockInput();
+    }
+  </script>
+</body>
+</html>
