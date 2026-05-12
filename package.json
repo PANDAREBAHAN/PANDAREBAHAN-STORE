@@ -1,27 +1,15 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "**/*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "css/**/*.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "images/**/*",
-      "use": "@vercel/static"
-    }
-  ],
-  "rewrites": [
-    { "source": "/cek-ongkir", "destination": "/server.js" },
-    { "source": "/buat-transaksi", "destination": "/server.js" },
-    { "source": "/buat-resi", "destination": "/server.js" },
-    { "source": "/kirim-invoice", "destination": "/server.js" }
-  ]
+  "name": "pandarebahan-api",
+  "version": "1.0.0",
+  "description": "Backend API untuk Toko PandaRebahan",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "midtrans-client": "^1.3.1",
+    "nodemailer": "^6.9.13"
+  }
 }
